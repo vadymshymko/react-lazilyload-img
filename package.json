@@ -1,0 +1,30 @@
+{
+  "name": "react-lazyload-img",
+  "version": "0.0.1",
+  "description": "Simple react.js component for lazy load your images",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vadymshymko/react-lazyload-img.git"
+  },
+  "keywords": [
+    "react",
+    "react.js",
+    "reactjs-component",
+    "react-components",
+    "javascript",
+    "javascript-plugin",
+    "lazy-loading",
+    "lazyload",
+    "lazyload-images",
+    "es6",
+    "es6-javascript"
+  ],
+  "author": "Vadym Shymko <vadymshymko@gmail.com>",
+  "license": "SEE LICENSE IN <LICENSE>",
+  "bugs": {
+    "url": "https://github.com/vadymshymko/react-lazyload-img/issues"
+  },
+  "homepage": "https://github.com/vadymshymko/react-lazyload-img#readme"
+}
