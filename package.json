@@ -2,8 +2,12 @@
   "name": "react-lazyload-img",
   "version": "0.0.1",
   "description": "Simple react.js component for lazy load your images",
-  "main": "index.js",
-  "scripts": {},
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "export NODE_ENV=production && webpack --config webpack.config.js",
+    "test": "jest --no-cache",
+    "test-coverage": "jest --coverage --no-cache"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vadymshymko/react-lazyload-img.git"
@@ -26,5 +30,81 @@
   "bugs": {
     "url": "https://github.com/vadymshymko/react-lazyload-img/issues"
   },
-  "homepage": "https://github.com/vadymshymko/react-lazyload-img#readme"
+  "homepage": "https://github.com/vadymshymko/react-lazyload-img#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-proposal-decorators": "^7.1.2",
+    "@babel/plugin-proposal-do-expressions": "^7.0.0",
+    "@babel/plugin-proposal-export-default-from": "^7.0.0",
+    "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
+    "@babel/plugin-proposal-function-bind": "^7.0.0",
+    "@babel/plugin-proposal-function-sent": "^7.1.0",
+    "@babel/plugin-proposal-json-strings": "^7.0.0",
+    "@babel/plugin-proposal-logical-assignment-operators": "^7.0.0",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.0.0",
+    "@babel/plugin-proposal-numeric-separator": "^7.0.0",
+    "@babel/plugin-proposal-optional-chaining": "^7.0.0",
+    "@babel/plugin-proposal-pipeline-operator": "^7.0.0",
+    "@babel/plugin-proposal-throw-expressions": "^7.0.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+    "@babel/plugin-syntax-import-meta": "^7.0.0",
+    "@babel/plugin-transform-runtime": "^7.1.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-react": "^7.0.0",
+    "autoprefixer": "^9.1.5",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "^23.6.0",
+    "babel-loader": "^8.0.4",
+    "clean-webpack-plugin": "^0.1.19",
+    "css-loader": "^1.0.0",
+    "enzyme": "^3.7.0",
+    "enzyme-adapter-react-16": "^1.6.0",
+    "eslint": "^5.7.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-import-resolver-webpack": "^0.10.1",
+    "eslint-loader": "^2.1.1",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jest": "^21.24.1",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-react": "^7.11.1",
+    "glob": "^7.1.2",
+    "jest": "^23.6.0",
+    "node-sass": "^4.9.3",
+    "postcss-loader": "^3.0.0",
+    "react-dom": "^16.5.2",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1",
+    "uglifyjs-webpack-plugin": "^2.0.1",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2",
+    "webpack-merge": "^4.1.4"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.1.2",
+    "prop-types": "^15.6.1",
+    "react": "^16.2.0"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest"
+    },
+    "modulePaths": [
+      "src"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/example/"
+    ],
+    "setupFiles": [
+      "<rootDir>/src/__mocks__/browser.js"
+    ],
+    "setupTestFrameworkScriptFile": "<rootDir>/setupTests.js",
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/src/__mocks__/fileMock.js",
+      "\\.(css|scss|less)$": "<rootDir>/src/__mocks__/styleMock.js"
+    }
+  }
 }
