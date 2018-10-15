@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { LazyLoadImg } from 'react-lazyload-img';
+import LazilyLoadImg from 'react-lazilyload-img';
 
 class App extends Component {
   render() {
@@ -23,9 +23,13 @@ class App extends Component {
             Learn React
           </a>
 
-          <LazyLoadImg
+          <LazilyLoadImg
             placeholderSrc="//images.unsplash.com/photo-1539250632877-c12b7d5d6fcb?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=a608a96e849db36a32bcd68fa7bbd3ec&auto=format&fit=crop&w=27&q=8"
             src="//images.unsplash.com/photo-1539250632877-c12b7d5d6fcb?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=a608a96e849db36a32bcd68fa7bbd3ec&auto=format&fit=crop"
+            style={{
+              width: '500px',
+              height: 'auto'
+            }}
           />
         </header>
       </div>

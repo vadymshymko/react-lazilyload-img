@@ -1,6 +1,6 @@
 {
-  "name": "react-lazyload-img",
-  "version": "0.0.1",
+  "name": "react-lazilyload-img",
+  "version": "1.0.0-alpha",
   "description": "Simple react.js component for lazy load your images",
   "main": "dist/index.js",
   "scripts": {
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vadymshymko/react-lazyload-img.git"
+    "url": "git+https://github.com/vadymshymko/react-lazilyload-img.git"
   },
   "keywords": [
     "react",
@@ -28,9 +28,9 @@
   "author": "Vadym Shymko <vadymshymko@gmail.com>",
   "license": "SEE LICENSE IN <LICENSE>",
   "bugs": {
-    "url": "https://github.com/vadymshymko/react-lazyload-img/issues"
+    "url": "https://github.com/vadymshymko/react-lazilyload-img/issues"
   },
-  "homepage": "https://github.com/vadymshymko/react-lazyload-img#readme",
+  "homepage": "https://github.com/vadymshymko/react-lazilyload-img#readme",
   "devDependencies": {
     "@babel/cli": "^7.1.2",
     "@babel/core": "^7.1.2",
@@ -70,7 +70,6 @@
     "eslint-plugin-jest": "^21.24.1",
     "eslint-plugin-jsx-a11y": "^6.1.2",
     "eslint-plugin-react": "^7.11.1",
-    "glob": "^7.1.2",
     "jest": "^23.6.0",
     "node-sass": "^4.9.3",
     "postcss-loader": "^3.0.0",

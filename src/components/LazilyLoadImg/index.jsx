@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-class LazyLoadImg extends Component {
+class LazilyLoadImg extends Component {
   static propTypes = {
     placeholderSrc: PropTypes.string,
     placeholderSrcSet: PropTypes.string,
@@ -209,4 +209,4 @@ class LazyLoadImg extends Component {
   }
 }
 
-export default LazyLoadImg;
+export default LazilyLoadImg;

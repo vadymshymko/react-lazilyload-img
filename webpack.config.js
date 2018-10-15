@@ -1,15 +1,6 @@
 const path = require('path');
-const glob = require('glob');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-
-const componentsPaths = glob.sync('./src/components/**?/');
-const entryPoints = componentsPaths.reduce((items, item) => ({
-  ...items,
-  [path.basename(item)]: [
-    `${item}index.jsx`,
-  ],
-}), {});
 
 module.exports = {
   mode: 'production',
@@ -17,7 +8,6 @@ module.exports = {
     index: [
       './src/components/index.js',
     ],
-    ...entryPoints,
   },
   output: {
     filename: '[name].js',
