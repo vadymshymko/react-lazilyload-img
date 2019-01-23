@@ -5,9 +5,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 module.exports = {
   mode: 'production',
   entry: {
-    index: [
-      './src/components/index.js',
-    ],
+    index: ['./src/components/index.js'],
   },
   output: {
     filename: '[name].js',
@@ -34,24 +32,11 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.jsx'],
-    modules: [
-      path.resolve(__dirname, 'src'),
-      'node_modules',
-    ],
+    modules: [path.resolve(__dirname, 'src'), 'node_modules'],
   },
-  plugins: [
-    new CleanWebpackPlugin([
-      'dist',
-    ]),
-    new UglifyJSPlugin(),
-  ],
+  plugins: [new CleanWebpackPlugin(['dist']), new UglifyJSPlugin()],
   module: {
     rules: [
-      {
-        test: /\.(ttf|eot|woff(2)?)(\?[a-z0-9=&.]+)?$/,
-        use: 'file-loader',
-        exclude: /node_modules/,
-      },
       {
         enforce: 'pre',
         test: /\.jsx?$/,
@@ -61,34 +46,6 @@ module.exports = {
       {
         test: /\.jsx?$/,
         use: 'babel-loader',
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.css$/,
-        use: [
-          'style-loader',
-          {
-            loader: 'css-loader',
-            options: {
-              modules: true,
-            },
-          },
-          'postcss-loader',
-        ],
-      },
-      {
-        test: /\.scss/,
-        use: [
-          'style-loader',
-          {
-            loader: 'css-loader',
-            options: {
-              modules: true,
-            },
-          },
-          'sass-loader',
-          'postcss-loader',
-        ],
         exclude: /node_modules/,
       },
     ],
