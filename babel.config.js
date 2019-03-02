@@ -1,11 +1,9 @@
 module.exports = {
   presets: [
-    '@babel/preset-env',
     '@babel/preset-react',
+    '@babel/preset-env',
   ],
   plugins: [
-    '@babel/plugin-transform-runtime',
-
     // Stage 0
     '@babel/plugin-proposal-function-bind',
 
@@ -29,5 +27,7 @@ module.exports = {
     '@babel/plugin-syntax-import-meta',
     ['@babel/plugin-proposal-class-properties', { loose: false }],
     '@babel/plugin-proposal-json-strings',
+
+    '@babel/plugin-transform-runtime',
   ],
 };

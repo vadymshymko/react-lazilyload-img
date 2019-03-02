@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import LazilyLoadImg from 'react-lazilyload-img';
+import LazilyLoadImg from 'reactjs-lazilyload-img';
 
 class App extends Component {
   render() {

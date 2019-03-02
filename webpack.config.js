@@ -1,17 +1,15 @@
 const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const WebpackBar = require('webpackbar');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   mode: 'production',
-  entry: {
-    index: ['./src/components/index.js'],
-  },
+  entry: './src/index.jsx',
   output: {
-    filename: '[name].js',
+    filename: 'index.js',
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '/',
-    library: 'your-library-name',
+    library: 'ReactjsLazilyLoadImg',
     libraryTarget: 'umd',
   },
   externals: {
@@ -22,19 +20,22 @@ module.exports = {
       amd: 'react',
       umd: 'react',
     },
-    'prop-types': {
-      root: 'PropTypes',
-      commonjs2: 'prop-types',
-      commonjs: 'prop-types',
-      amd: 'prop-types',
-      umd: 'prop-types',
+    'react-dom': {
+      root: 'ReactDOM',
+      commonjs2: 'react-dom',
+      commonjs: 'react-dom',
+      amd: 'react-dom',
+      umd: 'react-dom',
     },
   },
   resolve: {
     extensions: ['.js', '.jsx'],
     modules: [path.resolve(__dirname, 'src'), 'node_modules'],
   },
-  plugins: [new CleanWebpackPlugin(['dist']), new UglifyJSPlugin()],
+  plugins: [
+    new CleanWebpackPlugin(['dist']),
+    new WebpackBar(),
+  ],
   module: {
     rules: [
       {
@@ -48,6 +49,20 @@ module.exports = {
         use: 'babel-loader',
         exclude: /node_modules/,
       },
+    ],
+  },
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          compress: {
+            drop_console: true,
+          },
+          output: {
+            comments: false,
+          },
+        },
+      }),
     ],
   },
 };
