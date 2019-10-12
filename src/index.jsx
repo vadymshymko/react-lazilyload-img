@@ -1,76 +1,131 @@
-import React, { Component } from 'react';
+import React, { PureComponent, createRef } from 'react';
 import PropTypes from 'prop-types';
 
-class LazilyLoadImg extends Component {
+class ReactLazilyLoadImg extends PureComponent {
   static propTypes = {
+    className: PropTypes.string,
+    loadingClassName: PropTypes.string,
+    mainImgClassName: PropTypes.string,
+    mainImgOnLoad: PropTypes.func,
+    onLoad: PropTypes.func,
+    placeholderClassName: PropTypes.string,
+    placeholderOnLoad: PropTypes.func,
     placeholderSrc: PropTypes.string,
     placeholderSrcSet: PropTypes.string,
-    placeholderClassName: PropTypes.string,
-    onPlaceholderLoad: PropTypes.func,
-    onPlaceholderError: PropTypes.func,
     src: PropTypes.string,
     srcSet: PropTypes.string,
-    className: PropTypes.string,
-    onLoad: PropTypes.func,
-    onError: PropTypes.func,
-    loadAfterPlaceholderEnd: PropTypes.bool,
-    useObserverFallback: PropTypes.bool,
-  }
+  };
 
   static defaultProps = {
-    placeholderSrc: null,
-    placeholderSrcSet: null,
-    placeholderClassName: '',
-    onPlaceholderLoad: () => {},
-    onPlaceholderError: () => {},
-    src: null,
-    srcSet: null,
     className: '',
-    onLoad: () => {},
-    onError: () => {},
-    loadAfterPlaceholderEnd: false,
-    useObserverFallback: true,
-  }
+    loadingClassName: '',
+    mainImgClassName: '',
+    mainImgOnLoad: null,
+    onLoad: null,
+    placeholderClassName: '',
+    placeholderOnLoad: null,
+    placeholderSrc: '',
+    placeholderSrcSet: '',
+    src: '',
+    srcSet: '',
+  };
 
   constructor(props) {
     super(props);
 
-    this.img = null;
-    this.observer = null;
-    this.isActive = false;
-
-    this.isMainImgLoading = false;
+    this.imgRef = createRef();
   }
 
   componentDidMount() {
-    if (this.img) {
-      if ('IntersectionObserver' in window) {
-        this.observer = new IntersectionObserver(this.lazyLoad);
-        this.observer.observe(this.img);
-      } else if (
-        (
-          this.img.getBoundingClientRect().top <= window.innerHeight
-          && this.img.getBoundingClientRect().bottom >= 0
-        )
-        && getComputedStyle(this.img).display !== 'none'
-      ) {
-        this.loadMainImg();
-      } else {
-        document.addEventListener('scroll', this.lazyLoad);
-        window.addEventListener('resize', this.lazyLoad);
-        window.addEventListener('orientationchange', this.lazyLoad);
-      }
+    this.init();
+  }
+
+  componentDidUpdate() {
+    const { src: prevSrc, srcSet: prevSrcSet } = this.props;
+    const { src, srcSet } = this.props;
+
+    if (src !== prevSrc || srcSet !== prevSrcSet) {
+      this.init();
     }
   }
 
   componentWillUnmount() {
-    if ('IntersectionObserver' in window && this.observer && this.img) {
-      this.observer.unobserve(this.img);
+    this.reset();
+  }
+
+  reset = () => {
+    this.isActive = false;
+
+    if (this.observer) {
+      this.observer.unobserve(this.imgRef.current);
     }
 
     document.removeEventListener('scroll', this.lazyLoad);
     window.removeEventListener('resize', this.lazyLoad);
     window.removeEventListener('orientationchange', this.lazyLoad);
+  };
+
+  handleImgLoad = (event) => {
+    const {
+      src,
+      srcSet,
+      className,
+      onLoad,
+      mainImgClassName,
+      mainImgOnLoad,
+      placeholderOnLoad,
+    } = this.props;
+
+    const isMainImg = (src && event.target.src === src)
+      || (srcSet && event.target.srcset === srcSet);
+
+    if (isMainImg && mainImgOnLoad) {
+      this.imgRef.current.className = `${className} ${mainImgClassName}`;
+
+      mainImgOnLoad(event);
+    } else if (placeholderOnLoad) {
+      placeholderOnLoad(event);
+    }
+
+    if (onLoad) {
+      onLoad(event);
+    }
+  };
+
+  loadMainImg = () => {
+    const {
+      src,
+      srcSet,
+      className,
+      mainImgClassName,
+      loadingClassName,
+    } = this.props;
+
+    if (
+      this.imgRef.current.src !== src
+      || this.imgRef.current.srcset !== srcSet
+    ) {
+      this.imgRef.current.className = `${className} ${mainImgClassName} ${loadingClassName}`;
+      this.imgRef.current.src = src;
+      this.imgRef.current.srcset = srcSet;
+    }
+  };
+
+  lazyLoadTimeoutCallback = () => {
+    if (
+      this.imgRef.current.getBoundingClientRect().top
+      <= window.innerHeight
+      && this.imgRef.current.getBoundingClientRect().bottom >= 0
+      && getComputedStyle(this.imgRef.current).display !== 'none'
+    ) {
+      document.removeEventListener('scroll', this.lazyLoad);
+      window.removeEventListener('resize', this.lazyLoad);
+      window.removeEventListener('orientationchange', this.lazyLoad);
+
+      this.loadMainImg();
+    }
+
+    this.isActive = false;
   }
 
   lazyLoad = (entries) => {
@@ -78,145 +133,62 @@ class LazilyLoadImg extends Component {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           this.loadMainImg();
-          this.observer.unobserve(this.img);
+          this.observer.unobserve(this.imgRef.current);
         }
       });
-    } else if (this.isActive === false) {
+    } else if (!this.isActive) {
       this.isActive = true;
 
-      setTimeout(() => {
-        if (
-          (
-            this.img.getBoundingClientRect().top <= window.innerHeight
-            && this.img.getBoundingClientRect().bottom >= 0
-          )
-          && getComputedStyle(this.img).display !== 'none'
-        ) {
-          document.removeEventListener('scroll', this.lazyLoad);
-          window.removeEventListener('resize', this.lazyLoad);
-          window.removeEventListener('orientationchange', this.lazyLoad);
-
-          this.loadMainImg();
-        }
-
-        this.isActive = false;
-      }, 200);
+      setTimeout(this.lazyLoadTimeoutCallback, 200);
     }
-  }
+  };
 
-  handleImgRef = (node) => {
-    this.img = node;
-  }
+  init = () => {
+    this.reset();
 
-  handleLoad = (event) => {
-    const {
-      onPlaceholderLoad,
-      onLoad,
-      loadAfterPlaceholderEnd,
-      useObserverFallback,
-    } = this.props;
-
-    if (this.isMainImgLoading) {
-      onLoad(event);
-    } else {
-      onPlaceholderLoad(event);
-
-      if (
-        loadAfterPlaceholderEnd
-        || (
-          !('IntersectionObserver' in window)
-          && !useObserverFallback
-        )
-      ) {
-        this.loadMainImg();
-      }
-    }
-  }
-
-  handleError = (event) => {
-    const {
-      onPlaceholderError,
-      onError,
-      loadAfterPlaceholderEnd,
-    } = this.props;
-
-
-    if (this.isMainImgLoading) {
-      onError(event);
-    } else {
-      onPlaceholderError(event);
-
-      if (loadAfterPlaceholderEnd) {
-        this.loadMainImg();
-      }
-    }
-  }
-
-  loadMainImg = () => {
-    const {
-      src,
-      srcSet,
-      className,
-      onLoad,
-      onError,
-    } = this.props;
-
-    if (
-      this.img
-      && (
-        src || srcSet
-      )
+    if ('IntersectionObserver' in window) {
+      this.observer = new IntersectionObserver(this.lazyLoad);
+      this.observer.observe(this.imgRef.current);
+    } else if (
+      this.imgRef.current.getBoundingClientRect().top <= window.innerHeight
+      && this.imgRef.current.getBoundingClientRect().bottom >= 0
+      && getComputedStyle(this.imgRef.current).display !== 'none'
     ) {
-      this.isMainImgLoading = true;
-
-      this.img.onLoad = onLoad;
-      this.img.onError = onError;
-      this.img.src = src;
-      this.img.srcSet = srcSet;
-      this.img.className = className;
+      this.loadMainImg();
+    } else {
+      document.addEventListener('scroll', this.lazyLoad);
+      window.addEventListener('resize', this.lazyLoad);
+      window.addEventListener('orientationchange', this.lazyLoad);
     }
-  }
+  };
 
   render() {
     const {
-      placeholderSrc,
-      placeholderSrcSet,
-      placeholderClassName,
-      onPlaceholderLoad,
-      onPlaceholderError,
       src,
       srcSet,
       className,
-      onLoad,
-      onError,
-      loadAfterPlaceholderEnd,
-      useObserverFallback,
+      mainImgClassName,
+      mainImgOnLoad,
+      placeholderSrc,
+      placeholderSrcSet,
+      placeholderClassName,
+      placeholderOnLoad,
+      loadingClassName,
       ...props
     } = this.props;
 
-    if (
-      !placeholderSrc
-      && !placeholderSrcSet
-      && !src
-      && !srcSet
-    ) {
-      return null;
-    }
-
-    /* eslint-disable jsx-a11y/alt-text */
     return (
+      /* eslint-disable-next-line jsx-a11y/alt-text */
       <img
         {...props}
         src={placeholderSrc}
         srcSet={placeholderSrcSet}
-        className={placeholderClassName}
-        onLoad={this.handleLoad}
-        onError={this.handleError}
-        ref={this.handleImgRef}
+        className={`${className} ${placeholderClassName}`}
+        onLoad={this.handleImgLoad}
+        ref={this.imgRef}
       />
     );
-    /* eslint-enable jsx-a11y/alt-text */
   }
 }
 
-export default LazilyLoadImg;
+export default ReactLazilyLoadImg;
