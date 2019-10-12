@@ -1,10 +1,9 @@
 const path = require('path');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
-const WebpackBar = require('webpackbar');
-const TerserPlugin = require('terser-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
   mode: 'production',
+  target: 'web',
   entry: './src/index.jsx',
   output: {
     filename: 'index.js',
@@ -30,39 +29,21 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.jsx'],
-    modules: [path.resolve(__dirname, 'src'), 'node_modules'],
+    modules: [path.resolve(__dirname, './src'), 'node_modules'],
   },
-  plugins: [
-    new CleanWebpackPlugin(['dist']),
-    new WebpackBar(),
-  ],
+  plugins: [new CleanWebpackPlugin()],
   module: {
     rules: [
       {
         enforce: 'pre',
         test: /\.jsx?$/,
         use: 'eslint-loader',
-        exclude: /node_modules/,
       },
       {
         test: /\.jsx?$/,
         use: 'babel-loader',
         exclude: /node_modules/,
       },
-    ],
-  },
-  optimization: {
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          compress: {
-            drop_console: true,
-          },
-          output: {
-            comments: false,
-          },
-        },
-      }),
     ],
   },
 };
