@@ -13,6 +13,11 @@
     "lint:fix": "eslint . --ignore-path .eslintignore --ext .js,.jsx --fix",
     "prepublish": "yarn run lint && yarn run build"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
   "lint-staged": {
     "*.js": [
       "eslint --fix",
