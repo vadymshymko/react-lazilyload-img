@@ -111,6 +111,23 @@ class ReactLazilyLoadImg extends PureComponent {
     }
   };
 
+  lazyLoadTimeoutCallback = () => {
+    if (
+      this.imgRef.current.getBoundingClientRect().top
+      <= window.innerHeight
+      && this.imgRef.current.getBoundingClientRect().bottom >= 0
+      && getComputedStyle(this.imgRef.current).display !== 'none'
+    ) {
+      document.removeEventListener('scroll', this.lazyLoad);
+      window.removeEventListener('resize', this.lazyLoad);
+      window.removeEventListener('orientationchange', this.lazyLoad);
+
+      this.loadMainImg();
+    }
+
+    this.isActive = false;
+  }
+
   lazyLoad = (entries) => {
     if (this.observer) {
       entries.forEach((entry) => {
@@ -122,22 +139,7 @@ class ReactLazilyLoadImg extends PureComponent {
     } else if (!this.isActive) {
       this.isActive = true;
 
-      setTimeout(() => {
-        if (
-          this.imgRef.current.getBoundingClientRect().top
-          <= window.innerHeight
-          && this.imgRef.current.getBoundingClientRect().bottom >= 0
-          && getComputedStyle(this.imgRef.current).display !== 'none'
-        ) {
-          document.removeEventListener('scroll', this.lazyLoad);
-          window.removeEventListener('resize', this.lazyLoad);
-          window.removeEventListener('orientationchange', this.lazyLoad);
-
-          this.loadMainImg();
-        }
-
-        this.isActive = false;
-      }, 200);
+      setTimeout(this.lazyLoadTimeoutCallback, 200);
     }
   };
 
