@@ -1,7 +1,7 @@
 # react-lazilyload-img
 
 [![npm version](https://img.shields.io/npm/v/react-lazilyload-img.svg?style=flat)](https://www.npmjs.com/package/react-lazilyload-img)
-![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-lazilyload-img?label=size)
+![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-lazilyload-img@latest?label=size)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/vadymshymko/react-lazilyload-img/blob/master/LICENSE)
 
 Simple && small React.js component for lazy load images
