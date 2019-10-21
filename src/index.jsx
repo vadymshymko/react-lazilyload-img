@@ -1,86 +1,31 @@
-import React, { PureComponent, createRef } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-class ReactLazilyLoadImg extends PureComponent {
-  static propTypes = {
-    className: PropTypes.string,
-    loadingClassName: PropTypes.string,
-    mainImgClassName: PropTypes.string,
-    mainImgOnLoad: PropTypes.func,
-    onLoad: PropTypes.func,
-    placeholderClassName: PropTypes.string,
-    placeholderOnLoad: PropTypes.func,
-    placeholderSrc: PropTypes.string,
-    placeholderSrcSet: PropTypes.string,
-    src: PropTypes.string,
-    srcSet: PropTypes.string,
-  };
+let observer = null;
+let isActive = false;
 
-  static defaultProps = {
-    className: '',
-    loadingClassName: '',
-    mainImgClassName: '',
-    mainImgOnLoad: null,
-    onLoad: null,
-    placeholderClassName: '',
-    placeholderOnLoad: null,
-    placeholderSrc: '',
-    placeholderSrcSet: '',
-    src: '',
-    srcSet: '',
-  };
+const ReactLazilyLoadImg = memo(({
+  src,
+  srcSet,
+  className,
+  mainImgClassName,
+  mainImgOnLoad,
+  placeholderSrc,
+  placeholderSrcSet,
+  placeholderClassName,
+  placeholderOnLoad,
+  loadingClassName,
+  onLoad,
+  ...props
+}) => {
+  const imgRef = useRef();
 
-  constructor(props) {
-    super(props);
-
-    this.imgRef = createRef();
-  }
-
-  componentDidMount() {
-    this.init();
-  }
-
-  componentDidUpdate() {
-    const { src: prevSrc, srcSet: prevSrcSet } = this.props;
-    const { src, srcSet } = this.props;
-
-    if (src !== prevSrc || srcSet !== prevSrcSet) {
-      this.init();
-    }
-  }
-
-  componentWillUnmount() {
-    this.reset();
-  }
-
-  reset = () => {
-    this.isActive = false;
-
-    if (this.observer) {
-      this.observer.unobserve(this.imgRef.current);
-    }
-
-    document.removeEventListener('scroll', this.lazyLoad);
-    window.removeEventListener('resize', this.lazyLoad);
-    window.removeEventListener('orientationchange', this.lazyLoad);
-  };
-
-  handleImgLoad = (event) => {
-    const {
-      src,
-      srcSet,
-      className,
-      onLoad,
-      mainImgClassName,
-      mainImgOnLoad,
-      placeholderOnLoad,
-    } = this.props;
-
+  const handleImgLoad = (event) => {
     const isMainImg = (src && event.target.src === src)
       || (srcSet && event.target.srcset === srcSet);
 
     if (isMainImg && mainImgOnLoad) {
-      this.imgRef.current.className = `${className} ${mainImgClassName}`;
+      imgRef.current.className = `${className} ${mainImgClassName}`;
 
       mainImgOnLoad(event);
     } else if (placeholderOnLoad) {
@@ -92,103 +37,124 @@ class ReactLazilyLoadImg extends PureComponent {
     }
   };
 
-  loadMainImg = () => {
-    const {
-      src,
-      srcSet,
-      className,
-      mainImgClassName,
-      loadingClassName,
-    } = this.props;
-
+  const loadMainImg = () => {
     if (
-      this.imgRef.current.src !== src
-      || this.imgRef.current.srcset !== srcSet
+      imgRef.current.src !== src
+      || imgRef.current.srcset !== srcSet
     ) {
-      this.imgRef.current.className = `${className} ${mainImgClassName} ${loadingClassName}`;
-      this.imgRef.current.src = src;
-      this.imgRef.current.srcset = srcSet;
+      imgRef.current.className = `${className} ${mainImgClassName} ${loadingClassName}`;
+      imgRef.current.src = src;
+      imgRef.current.srcset = srcSet;
     }
   };
 
-  lazyLoadTimeoutCallback = () => {
-    if (
-      this.imgRef.current.getBoundingClientRect().top
-      <= window.innerHeight
-      && this.imgRef.current.getBoundingClientRect().bottom >= 0
-      && getComputedStyle(this.imgRef.current).display !== 'none'
-    ) {
-      document.removeEventListener('scroll', this.lazyLoad);
-      window.removeEventListener('resize', this.lazyLoad);
-      window.removeEventListener('orientationchange', this.lazyLoad);
-
-      this.loadMainImg();
-    }
-
-    this.isActive = false;
-  }
-
-  lazyLoad = (entries) => {
-    if (this.observer) {
+  const lazyLoad = (entries) => {
+    if (observer) {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          this.loadMainImg();
-          this.observer.unobserve(this.imgRef.current);
+          loadMainImg();
+          observer.unobserve(imgRef.current);
         }
       });
-    } else if (!this.isActive) {
-      this.isActive = true;
+    } else if (!isActive) {
+      isActive = true;
 
-      setTimeout(this.lazyLoadTimeoutCallback, 200);
+      setTimeout(() => {
+        if (
+          imgRef.current.getBoundingClientRect().top
+          <= window.innerHeight
+          && imgRef.current.getBoundingClientRect().bottom >= 0
+          && getComputedStyle(imgRef.current).display !== 'none'
+        ) {
+          document.removeEventListener('scroll', lazyLoad);
+          window.removeEventListener('resize', lazyLoad);
+          window.removeEventListener('orientationchange', lazyLoad);
+
+          loadMainImg();
+        }
+
+        isActive = false;
+      }, 200);
     }
   };
 
-  init = () => {
-    this.reset();
+  const reset = () => {
+    isActive = false;
+
+    if (observer) {
+      observer.unobserve(imgRef.current);
+    }
+
+    document.removeEventListener('scroll', lazyLoad);
+    window.removeEventListener('resize', lazyLoad);
+    window.removeEventListener('orientationchange', lazyLoad);
+  };
+
+  const init = () => {
+    reset();
 
     if ('IntersectionObserver' in window) {
-      this.observer = new IntersectionObserver(this.lazyLoad);
-      this.observer.observe(this.imgRef.current);
+      observer = new IntersectionObserver(lazyLoad);
+      observer.observe(imgRef.current);
     } else if (
-      this.imgRef.current.getBoundingClientRect().top <= window.innerHeight
-      && this.imgRef.current.getBoundingClientRect().bottom >= 0
-      && getComputedStyle(this.imgRef.current).display !== 'none'
+      imgRef.current.getBoundingClientRect().top <= window.innerHeight
+      && imgRef.current.getBoundingClientRect().bottom >= 0
+      && getComputedStyle(imgRef.current).display !== 'none'
     ) {
-      this.loadMainImg();
+      loadMainImg();
     } else {
-      document.addEventListener('scroll', this.lazyLoad);
-      window.addEventListener('resize', this.lazyLoad);
-      window.addEventListener('orientationchange', this.lazyLoad);
+      document.addEventListener('scroll', lazyLoad);
+      window.addEventListener('resize', lazyLoad);
+      window.addEventListener('orientationchange', lazyLoad);
     }
   };
 
-  render() {
-    const {
-      src,
-      srcSet,
-      className,
-      mainImgClassName,
-      mainImgOnLoad,
-      placeholderSrc,
-      placeholderSrcSet,
-      placeholderClassName,
-      placeholderOnLoad,
-      loadingClassName,
-      ...props
-    } = this.props;
+  useEffect(() => {
+    init();
+    return reset;
+  }, []);
 
-    return (
-      /* eslint-disable-next-line jsx-a11y/alt-text */
-      <img
-        {...props}
-        src={placeholderSrc}
-        srcSet={placeholderSrcSet}
-        className={`${className} ${placeholderClassName}`}
-        onLoad={this.handleImgLoad}
-        ref={this.imgRef}
-      />
-    );
-  }
-}
+  useEffect(init, [src, srcSet]);
+
+  return (
+    /* eslint-disable-next-line jsx-a11y/alt-text */
+    <img
+      {...props}
+      src={placeholderSrc}
+      srcSet={placeholderSrcSet}
+      className={`${className} ${placeholderClassName}`}
+      onLoad={handleImgLoad}
+      ref={imgRef}
+    />
+  );
+});
+
+ReactLazilyLoadImg.propTypes = {
+  className: PropTypes.string,
+  loadingClassName: PropTypes.string,
+  mainImgClassName: PropTypes.string,
+  mainImgOnLoad: PropTypes.func,
+  onLoad: PropTypes.func,
+  placeholderClassName: PropTypes.string,
+  placeholderOnLoad: PropTypes.func,
+  placeholderSrc: PropTypes.string,
+  placeholderSrcSet: PropTypes.string,
+  src: PropTypes.string,
+  srcSet: PropTypes.string,
+};
+
+ReactLazilyLoadImg.defaultProps = {
+  className: '',
+  loadingClassName: '',
+  mainImgClassName: '',
+  mainImgOnLoad: null,
+  onLoad: null,
+  placeholderClassName: '',
+  placeholderOnLoad: null,
+  placeholderSrc: '',
+  placeholderSrcSet: '',
+  src: '',
+  srcSet: '',
+};
 
 export default ReactLazilyLoadImg;
