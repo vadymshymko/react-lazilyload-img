@@ -24,10 +24,12 @@ const ReactLazilyLoadImg = memo(({
     const isMainImg = (src && event.target.src === src)
       || (srcSet && event.target.srcset === srcSet);
 
-    if (isMainImg && mainImgOnLoad) {
+    if (isMainImg) {
       imgRef.current.className = `${className} ${mainImgClassName}`;
 
-      mainImgOnLoad(event);
+      if (mainImgOnLoad) {
+        mainImgOnLoad(event);
+      }
     } else if (placeholderOnLoad) {
       placeholderOnLoad(event);
     }
