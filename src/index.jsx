@@ -116,7 +116,10 @@ const ReactLazilyLoadImg = memo(({
     return reset;
   }, []);
 
-  useEffect(init, [src, srcSet]);
+  useEffect(() => {
+    init();
+    return reset;
+  }, [src, srcSet]);
 
   return (
     /* eslint-disable-next-line jsx-a11y/alt-text */
