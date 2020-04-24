@@ -124,6 +124,7 @@ const ReactLazilyLoadImg = memo(({
   return (
     /* eslint-disable-next-line jsx-a11y/alt-text */
     <img
+      // eslint-disable-next-line react/jsx-props-no-spreading
       {...props}
       src={placeholderSrc}
       srcSet={placeholderSrcSet}
